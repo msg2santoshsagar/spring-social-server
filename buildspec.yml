@@ -23,7 +23,7 @@ phases:
 artifacts:
   type: zip
   files:
-    - '**/*'
+    - 'ROOT/target/**/*'
 #     - 'ROOT/WEB-INF/classes/**/*'
 #     - 'ROOT/WEB-INF/classes/**/*'
 #    - 'ROOT/WEB-INF/classes/application.properties'
