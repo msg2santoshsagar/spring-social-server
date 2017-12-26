@@ -13,7 +13,8 @@ phases:
     commands:
       - echo Entering build phase...
       - echo Build started on `date`
-      - mvn -f pom.xml compile war:exploded
+#      - mvn -f pom.xml compile war:exploded
+      - mvn clean package
   post_build:
     commands:
       - echo Entering post_build phase...
@@ -22,7 +23,9 @@ phases:
 artifacts:
   type: zip
   files:
-     - '**/*'
+    - '**/*'
+#     - 'ROOT/WEB-INF/classes/**/*'
+#     - 'ROOT/WEB-INF/classes/**/*'
 #    - 'ROOT/WEB-INF/classes/application.properties'
 #    - 'ROOT/WEB-INF/classes/com/aws/codestar/projecttemplates/HelloWorldAppInitializer.class'
 #    - 'ROOT/WEB-INF/classes/com/aws/codestar/projecttemplates/configuration/ApplicationConfig.class'
