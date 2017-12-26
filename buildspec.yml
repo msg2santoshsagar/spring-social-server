@@ -19,9 +19,9 @@ phases:
       - echo Entering post_build phase...
       - echo Build completed on `date`
       - mv target/ROOT .
-artifacts:
-  type: zip
-  files:
+#artifacts:
+#  type: zip
+#  files:
 #    - 'ROOT/WEB-INF/classes/application.properties'
 #    - 'ROOT/WEB-INF/classes/com/aws/codestar/projecttemplates/HelloWorldAppInitializer.class'
 #    - 'ROOT/WEB-INF/classes/com/aws/codestar/projecttemplates/configuration/ApplicationConfig.class'
