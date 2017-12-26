@@ -14,7 +14,7 @@ phases:
       - echo Entering build phase...
       - echo Build started on `date`
 #      - mvn -f pom.xml compile war:exploded
-      - mvn clean package
+      - mvn clean install -DskipTests=true
   post_build:
     commands:
       - echo Entering post_build phase...
