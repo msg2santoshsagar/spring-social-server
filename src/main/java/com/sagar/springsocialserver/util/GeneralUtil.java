@@ -4,6 +4,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class GeneralUtil {
+	
+	private static final CustomLogWriter clw = CustomLogWriter.getLogger(GeneralUtil.class);
+	
 
 	private GeneralUtil(){
 		// Private Constructors
@@ -17,21 +20,10 @@ public class GeneralUtil {
 		try {
 			jsonString = objectMapper.writeValueAsString(object);
 		} catch (JsonProcessingException e) {
-			System.err.println("Error occured while converting object to json :: "+e);
+			clw.error("Error occured while converting object to json :: "+e);
 		}
 		return jsonString;
 	}
 	
-	public static void convertValueToJsonAndPrint(String tag, String message, Object data){
-		System.out.println();
-		System.out.println();
-		System.out.print(tag);
-		System.out.print(" :: ");
-		System.out.print(message);
-		System.out.print(" :: ");
-		System.out.println(convertToJsonString(data));
-		System.out.println();
-		System.out.println();
-	}
 	
 }

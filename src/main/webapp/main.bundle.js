@@ -270,7 +270,7 @@ module.exports = module.exports.toString();
 /***/ "../../../../../src/app/login-form/login-form.component.html":
 /***/ (function(module, exports) {
 
-module.exports = "<div class=\"container\">\n  <div class=\"row\">\n    <div class=\"form_bg\">\n\n      <div class=\"row\">\n\n        <div class=\"col-md-6 col-xs-6\">\n          <form action=\"/signin/facebook\" method=\"post\" ngNoForm>\n            <input type=\"hidden\" name=\"scope\" value=\"email,public_profile\" />\n            <div class=\"form-group\">\n              <button type=\"submit\" class=\"btn btn-default btn-sm\" id=\"fb-login\">Facebook login</button>\n            </div>\n          </form>\n        </div>\n\n        <div class=\"col-md-6 col-xs-6\">\n          <form action=\"/signin/twitter\" method=\"post\" ngNoForm>\n            <div class=\"form-group\">\n              <button type=\"submit\" class=\"btn btn-default btn-sm\" id=\"twitter-login\">Twitter login</button>\n            </div>\n          </form>\n        </div>\n\n        <div class=\"col-md-6 col-xs-6\">\n          <form action=\"/signin/linkedin\" method=\"post\" ngNoForm>\n            <div class=\"form-group\">\n              <button type=\"submit\" class=\"btn btn-default btn-sm\" id=\"linkedin-login\">Linkedin login</button>\n            </div>\n          </form>\n        </div>\n\n        <div class=\"col-md-6 col-xs-6\">\n          <form action=\"/signin/google\" method=\"post\" ngNoForm>\n            <div class=\"form-group\">\n              <button disabled type=\"submit\" class=\"btn btn-default btn-sm\" id=\"google-login\">Google login</button>\n            </div>\n          </form>\n\n        </div>\n\n\n\n      </div>\n\n\n\n      <form class=\"form-signin\" #loginForm=\"ngForm\" (ngSubmit)=\"login(loginForm)\">\n        <h2 class=\"text-center\">Login Page</h2>\n        <br/>\n        <div class=\"form-group\">\n          <input [(ngModel)]=\"user.username\" type=\"text\" class=\"form-control\" name=\"username\" id=\"username\" placeholder=\"User id\" autocomplete=\"off\">\n        </div>\n        <div class=\"form-group\">\n          <input [(ngModel)]=\"user.password\" type=\"password\" class=\"form-control\" name=\"password\" id=\"password\" placeholder=\"Password\">\n        </div>\n        <br/>\n        <div class=\"align-center\">\n          <button type=\"submit\" class=\"btn btn-default\" id=\"login\">Login</button>\n        </div>\n      </form>\n    </div>\n  </div>\n</div>"
+module.exports = "<div class=\"container\">\n  <div class=\"row\">\n    <div class=\"form_bg\">\n\n      <div class=\"row\">\n\n        <div class=\"col-md-6 col-xs-6\">\n          <form action=\"{{apiSignIn.facebook}}\" method=\"post\" ngNoForm>\n            <input type=\"hidden\" name=\"scope\" value=\"email,public_profile\" />\n            <div class=\"form-group\">\n              <button type=\"submit\" class=\"btn btn-default btn-sm\" id=\"fb-login\">Facebook login</button>\n            </div>\n          </form>\n        </div>\n\n        <div class=\"col-md-6 col-xs-6\">\n          <form action=\"{{apiSignIn.twitter}}\" method=\"post\" ngNoForm>\n            <input type=\"hidden\" name=\"include_email\" value=\"true\" />\n            <div class=\"form-group\">\n              <button type=\"submit\" class=\"btn btn-default btn-sm\" id=\"twitter-login\">Twitter login</button>\n            </div>\n          </form>\n        </div>\n\n        <div class=\"col-md-6 col-xs-6\">\n          <form action=\"{{apiSignIn.linkedin}}\" method=\"post\" ngNoForm>\n            <div class=\"form-group\">\n              <button type=\"submit\" class=\"btn btn-default btn-sm\" id=\"linkedin-login\">Linkedin login</button>\n            </div>\n          </form>\n        </div>\n\n        <div class=\"col-md-6 col-xs-6\">\n          <form action=\"{{apiSignIn.google}}\" method=\"post\" ngNoForm>\n            <input type=\"hidden\" name=\"scope\" value=\"email\" />\n            <div class=\"form-group\">\n              <button type=\"submit\" class=\"btn btn-default btn-sm\" id=\"google-login\">Google login</button>\n            </div>\n          </form>\n\n        </div>\n\n      </div>\n\n      <div class=\"row\" *ngIf=\"loginErrorMessage != null\">\n        <div class=\"col-md-12\">\n            <div class=\"alert alert-danger\">\n                <strong>Error!</strong> {{loginErrorMessage}}\n              </div>\n        </div>\n      </div>\n\n      <form class=\"form-signin\" #loginForm=\"ngForm\" (ngSubmit)=\"login(loginForm)\">\n        <h2 class=\"text-center\">Login Page</h2>\n        <br/>\n        <div class=\"form-group\">\n          <input [(ngModel)]=\"user.username\" type=\"text\" class=\"form-control\" name=\"username\" id=\"username\" placeholder=\"User id\" autocomplete=\"off\" required>\n        </div>\n        <div class=\"form-group\">\n          <input [(ngModel)]=\"user.password\" type=\"password\" class=\"form-control\" name=\"password\" id=\"password\" placeholder=\"Password\" required>\n        </div>\n        <br/>\n        <div class=\"align-center\">\n          <button type=\"submit\" class=\"btn btn-default\" id=\"login\">Login</button>\n        </div>\n      </form>\n    </div>\n  </div>\n</div>"
 
 /***/ }),
 
@@ -301,12 +301,23 @@ var LoginFormComponent = (function () {
         this.http = http;
         this.router = router;
         this.user = {
-            "username": "admin",
-            "password": "admin"
+            username: "",
+            password: ""
         };
+        this.apiSignIn = {
+            facebook: __WEBPACK_IMPORTED_MODULE_2__environments_environment__["a" /* environment */].apiLoginFB,
+            twitter: __WEBPACK_IMPORTED_MODULE_2__environments_environment__["a" /* environment */].apiLoginTwitter,
+            linkedin: __WEBPACK_IMPORTED_MODULE_2__environments_environment__["a" /* environment */].apiLoginLinkedin,
+            google: __WEBPACK_IMPORTED_MODULE_2__environments_environment__["a" /* environment */].apiLoginGoogle
+        };
+        this.loginErrorMessage = null;
     }
     LoginFormComponent.prototype.ngOnInit = function () {
         var _this = this;
+        if (!__WEBPACK_IMPORTED_MODULE_2__environments_environment__["a" /* environment */].production) {
+            this.user.username = "admin";
+            this.user.password = "admin";
+        }
         var url = __WEBPACK_IMPORTED_MODULE_2__environments_environment__["a" /* environment */].apiAuth;
         console.log("AUTH URL :: ", url);
         this.http.post(url, null, {
@@ -321,6 +332,7 @@ var LoginFormComponent = (function () {
     };
     LoginFormComponent.prototype.login = function (loginForm) {
         var _this = this;
+        this.loginErrorMessage = null;
         console.log(loginForm.value);
         console.log("USER OBJECT ", this.user);
         var body = "username=" + this.user.username + "&password=" + this.user.password;
@@ -333,7 +345,8 @@ var LoginFormComponent = (function () {
             console.log(data);
             _this.router.navigate(["/home"]);
         }, function (err) {
-            console.error(err);
+            console.error(err.error);
+            _this.loginErrorMessage = err.error.message;
         });
     };
     LoginFormComponent = __decorate([
@@ -417,17 +430,16 @@ var PageNotFoundComponent = (function () {
 
 "use strict";
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return environment; });
-// The file contents for the current environment will overwrite these during build.
-// The build system defaults to the dev environment which uses `environment.ts`, but if you do
-// `ng build --env=prod` then `environment.prod.ts` will be used instead.
-// The list of which env maps to which file can be found in `.angular-cli.json`.
-var restEndPoint = ""; //"http://localhost:8080";
+var restEndPoint = "http://spring-socialapp.vrqb9j7jng.us-east-1.elasticbeanstalk.com";
 var environment = {
-    production: false,
+    production: true,
     apiLogin: restEndPoint + "/api/login",
     apiLoginFB: restEndPoint + "/signin/facebook",
+    apiLoginTwitter: restEndPoint + "/signin/twitter",
+    apiLoginLinkedin: restEndPoint + "/signin/linkedin",
+    apiLoginGoogle: restEndPoint + "/signin/google",
     apiLogOut: restEndPoint + "/api/logout",
-    apiAuth: restEndPoint + "/api/auth",
+    apiAuth: restEndPoint + "/api/auth"
 };
 
 

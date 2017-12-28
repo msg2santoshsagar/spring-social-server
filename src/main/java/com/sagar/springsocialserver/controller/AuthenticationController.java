@@ -24,17 +24,17 @@ public class AuthenticationController {
 	@RequestMapping(value="/auth",method={RequestMethod.GET,RequestMethod.POST},produces=MediaType.APPLICATION_JSON_VALUE)
 	public MaskedUser getAuth(){
 
-		System.out.println("==============================================================================================================================");
+		//System.out.println("==============================================================================================================================");
 
 		MaskedUser user = null;
 
 		Authentication authentication  = SecurityContextHolder.getContext().getAuthentication();
 
-		System.out.println("Authentication OBJ : "+authentication);
+		//System.out.println("Authentication OBJ : "+authentication);
 
 		Object userDetailsObj = authentication.getPrincipal();
 
-		System.out.println("USER DETAILS OBJ : "+userDetailsObj+" \n class : "+userDetailsObj.getClass().getName());
+		//System.out.println("USER DETAILS OBJ : "+userDetailsObj+" \n class : "+userDetailsObj.getClass().getName());
 
 		String userName = null;
 

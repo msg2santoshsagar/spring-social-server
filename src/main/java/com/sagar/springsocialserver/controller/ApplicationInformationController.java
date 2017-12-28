@@ -1,10 +1,13 @@
 package com.sagar.springsocialserver.controller;
 
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.PostConstruct;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -20,9 +23,13 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping(value="/api")
 public class ApplicationInformationController {
-
+	
+	@Autowired
+	Environment environment;
+	
+	private final static Date startDate = new Date();
+	
 	private Map<String, String> applicationInformationMap;
-	private Map<String, String> securedApplicationInformationMap;
 
 	/**
 	 * It will help to initialize the value of applicationInformationMap
@@ -33,12 +40,7 @@ public class ApplicationInformationController {
 		applicationInformationMap = new HashMap<>();
 		applicationInformationMap.put("name", "Spring social service");
 		applicationInformationMap.put("version", "0.0.1");
-		applicationInformationMap.put("Secured", "false");
-		
-		securedApplicationInformationMap = new HashMap<>();
-		securedApplicationInformationMap.put("name", "Spring social service");
-		securedApplicationInformationMap.put("version", "0.0.1");
-		securedApplicationInformationMap.put("Secured", "true");
+		applicationInformationMap.put("UP_TIME", startDate.toString());
 	}
 
 	/**
@@ -49,21 +51,11 @@ public class ApplicationInformationController {
 	 */
 	@RequestMapping(value="/ping",method={RequestMethod.GET,RequestMethod.POST},produces=MediaType.APPLICATION_JSON_UTF8_VALUE)
 	public Map<String, String> ping(){
+		
+		System.out.println(" &&&&&&&&&&&&&&&& "+environment.getProperty("project.name1"));
+		
 		return applicationInformationMap;
 	}
 	
-	
-	/**
-	 * Secured ping method
-	 * 
-	 * Get  : /ping : to get application information detail
-	 * Post : /ping : to get application information detail
-	 * 
-	 * @return a map which will have application detail
-	 */
-	@RequestMapping(value="/pingSecure",method={RequestMethod.GET,RequestMethod.POST},produces=MediaType.APPLICATION_JSON_UTF8_VALUE)
-	public Map<String, String> pingSecure(){
-		return securedApplicationInformationMap;
-	}
 
 }

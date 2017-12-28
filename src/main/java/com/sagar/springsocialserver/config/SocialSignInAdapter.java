@@ -12,6 +12,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.social.connect.Connection;
 import org.springframework.social.connect.web.SignInAdapter;
 import org.springframework.social.facebook.api.Facebook;
+import org.springframework.social.google.api.Google;
+import org.springframework.social.google.api.oauth2.UserInfo;
 import org.springframework.social.linkedin.api.LinkedIn;
 import org.springframework.social.linkedin.api.LinkedInProfile;
 import org.springframework.social.twitter.api.Twitter;
@@ -22,28 +24,36 @@ import org.springframework.web.context.request.NativeWebRequest;
 import com.sagar.springsocialserver.domain.AppUser;
 import com.sagar.springsocialserver.domain.FacebookUser;
 import com.sagar.springsocialserver.service.AppUserService;
+import com.sagar.springsocialserver.util.CustomLogWriter;
+import com.sagar.springsocialserver.util.GeneralUtil;
 
 @Component
 public class SocialSignInAdapter implements SignInAdapter {
+
+	private static final CustomLogWriter clw = CustomLogWriter.getLogger(SocialSignInAdapter.class);
+
 
 	@Autowired
 	private AppUserService appUserService;
 
 	@Override
 	public String signIn(String localUserId, Connection<?> connection, NativeWebRequest nativeWebRequest) {
-		System.out.println("=================== SIGN IN");
+		
+		clw.debug("=====================================================================SOCIAL SIGN UP");
 
 		Object apiObject =  connection.getApi();
 
 		Facebook facebook = null;
 		Twitter  twitter  = null;
 		LinkedIn linkedin = null;
-		
+		Google   google   = null;
+
 		boolean isFacebook =  false;
 		boolean isTwitter  =  false;
 		boolean isLinkedin =  false;
-		
-		
+		boolean isGoogle   =  false;
+
+
 		if( apiObject instanceof Facebook ){
 			facebook = (Facebook) apiObject;
 			isFacebook = true;
@@ -53,31 +63,46 @@ public class SocialSignInAdapter implements SignInAdapter {
 		}else if( apiObject instanceof LinkedIn  ){
 			linkedin = (LinkedIn) apiObject;
 			isLinkedin =  true;
+		}else if( apiObject instanceof Google ){
+			google = (Google) apiObject;
+			isGoogle = true;
 		}
-		
+
 		String userId = null;
 
 		if( isFacebook ){
 			String [] fields = { "id"};
 			FacebookUser  facebookUser = facebook.fetchObject("me", FacebookUser.class, fields);
 
+			clw.debug("Facebook Profile Data :: ",GeneralUtil.convertToJsonString(facebookUser));
+
 			userId = facebookUser.getId();
-			System.out.println("===================================== FACE BOOK USER OBJECT IN SIGN IN :: "+facebookUser);
-			System.out.println("===================== USR ID "+userId);
 
 		}else if( isTwitter ){
 			TwitterProfile twitterProfile = twitter.userOperations().getUserProfile();
 
+			clw.debug("Twitter Profile Data :: ",GeneralUtil.convertToJsonString(twitterProfile));
+
 			userId  = String.valueOf(twitterProfile.getId());
 
 		}else if( isLinkedin ){
-			
+
 			LinkedInProfile linkedinProfile = linkedin.profileOperations().getUserProfile();
-			
+
+			clw.debug("Linkedin Profile Data :: ",GeneralUtil.convertToJsonString(linkedinProfile));
+
 			userId  = linkedinProfile.getId();
-			
+
+		}else if( isGoogle ){
+
+			UserInfo userInfo = google.oauth2Operations().getUserinfo();
+
+			clw.debug("Google Profile Data :: ",GeneralUtil.convertToJsonString(userInfo));
+
+			userId = userInfo.getId();
+
 		}else{
-			System.err.println("SIGNIN : Api object is neither facebook nor twitter nor linkedin.");
+			clw.error("SIGNIN Api object is not of mentioned types .",(apiObject.getClass().getName()));
 		}
 
 		if(userId == null){
@@ -87,21 +112,27 @@ public class SocialSignInAdapter implements SignInAdapter {
 
 		Optional<AppUser> optionalUser = appUserService.findOneByUserId(userId);
 
-		System.out.println("OPTIONAL USER DATA FETCHED ---------------- ");
+		clw.debug("OPTIONAL USER DATA FETCHED ---------------- ");
 
-		AppUser appUser = optionalUser.get();
+		if( optionalUser.isPresent()){
+			AppUser appUser = optionalUser.get();
 
-		List<GrantedAuthority> authorities = appUser.getRole().stream().map(role -> new SimpleGrantedAuthority(role.getName().toString())).collect(Collectors.toList());
-
-
-		SecurityContextHolder.getContext().setAuthentication(
-				new UsernamePasswordAuthenticationToken(
-						userId, null, 
-						authorities));
+			List<GrantedAuthority> authorities = appUser.getRole().stream().map(role -> new SimpleGrantedAuthority(role.getName().toString())).collect(Collectors.toList());
 
 
+			SecurityContextHolder.getContext().setAuthentication(
+					new UsernamePasswordAuthenticationToken(
+							userId, null, 
+							authorities));
 
-		return null;
+
+		}else{
+			clw.debug("OPTIONAL USER DATA FETCHED, But No entry available corresponding to user in db ",userId);
+		}
+
+
+
+		return userId;
 	}
 
 }

@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.social.connect.Connection;
 import org.springframework.social.connect.ConnectionSignUp;
 import org.springframework.social.facebook.api.Facebook;
+import org.springframework.social.google.api.Google;
+import org.springframework.social.google.api.oauth2.UserInfo;
 import org.springframework.social.linkedin.api.LinkedIn;
 import org.springframework.social.linkedin.api.LinkedInProfile;
 import org.springframework.social.twitter.api.Twitter;
@@ -19,13 +21,13 @@ import com.sagar.springsocialserver.domain.FacebookUser;
 import com.sagar.springsocialserver.domain.Role;
 import com.sagar.springsocialserver.domain.RoleType;
 import com.sagar.springsocialserver.service.AppUserService;
+import com.sagar.springsocialserver.util.CustomLogWriter;
 import com.sagar.springsocialserver.util.GeneralUtil;
 
 @Component
 public class SocialConnectionSignUp implements ConnectionSignUp {
 
-	private static final String TAG = SocialConnectionSignUp.class.getSimpleName();
-	
+	private static final CustomLogWriter clw = CustomLogWriter.getLogger(SocialConnectionSignUp.class);
 	
 	@Autowired
 	private AppUserService appUserService;
@@ -33,17 +35,19 @@ public class SocialConnectionSignUp implements ConnectionSignUp {
 	@Override
 	public String execute(Connection<?> connection) {
 		
-		System.out.println("=================== SIGN UP");
+		clw.debug("=====================================================================SOCIAL SIGN UP");
 		
 		Object apiObject =  connection.getApi();
 		
 		Facebook facebook = null;
 		Twitter  twitter  = null;
 		LinkedIn linkedin = null;
+		Google	 google   = null;
 		
 		boolean isFacebook =  false;
 		boolean isTwitter  =  false;
 		boolean isLinkedin =  false;
+		boolean isGoogle   =  false;
 		
 		
 		if( apiObject instanceof Facebook ){
@@ -55,6 +59,9 @@ public class SocialConnectionSignUp implements ConnectionSignUp {
 		}else if( apiObject instanceof LinkedIn  ){
 			linkedin = (LinkedIn) apiObject;
 			isLinkedin =  true;
+		}else if( apiObject instanceof Google ){
+			google = (Google) apiObject;
+			isGoogle = true;
 		}
 		
 		String userId = null;
@@ -62,7 +69,9 @@ public class SocialConnectionSignUp implements ConnectionSignUp {
 		if( isFacebook ){
 			String [] fields = { "id", "email",  "first_name", "last_name" };
 			FacebookUser  facebookUser = facebook.fetchObject("me", FacebookUser.class, fields);
-			System.out.println(" SIGNUP USER PROFILE FACEBOOK :: "+facebookUser);
+			
+			clw.debug("Facebook Profile Data :: ",GeneralUtil.convertToJsonString(facebookUser));
+			
 			
 			String name = getFullName(facebookUser.getFirstName(), facebookUser.getLastName());
 			
@@ -81,12 +90,11 @@ public class SocialConnectionSignUp implements ConnectionSignUp {
 			
 			TwitterProfile twitterProfile = twitter.userOperations().getUserProfile();
 			
-			long     id  = twitterProfile.getId();
-			String  name = twitterProfile.getName();
+			clw.debug("Twitter Profile Data :: ",GeneralUtil.convertToJsonString(twitterProfile));
 			 
 			AppUser appUser = new AppUser();
-			appUser.setUserId(String.valueOf(id) );
-			appUser.setName(name);
+			appUser.setUserId(String.valueOf(twitterProfile.getId()) );
+			appUser.setName(twitterProfile.getName());
 			appUser.setPassword(String.valueOf(new Random().nextInt(Integer.MAX_VALUE)));
 			Set<Role> authorities = new HashSet<>();
 			authorities.add(new Role().setName(RoleType.ROLE_TWITTER_USER));
@@ -99,8 +107,7 @@ public class SocialConnectionSignUp implements ConnectionSignUp {
 			
 			LinkedInProfile linkedinProfile = linkedin.profileOperations().getUserProfile();
 			
-			GeneralUtil.convertValueToJsonAndPrint(TAG, "Linkedin Profile Data", linkedinProfile);
-			
+			clw.debug("Linkedin Profile Data :: ",GeneralUtil.convertToJsonString(linkedinProfile));
 			
 			AppUser appUser = new AppUser();
 			appUser.setUserId(String.valueOf(linkedinProfile.getId()) );
@@ -114,8 +121,26 @@ public class SocialConnectionSignUp implements ConnectionSignUp {
 			appUser =  appUserService.verifyAndsave(appUser);
 			userId =  appUser.getUserId();
 			
+		}else if( isGoogle ){
+			UserInfo userInfo =google.oauth2Operations().getUserinfo();
+			
+			clw.debug("Google Profile Data :: ",GeneralUtil.convertToJsonString(userInfo));
+			
+			AppUser appUser = new AppUser();
+			appUser.setUserId(userInfo.getId());
+			appUser.setName(userInfo.getName());
+			appUser.setEmail(userInfo.getEmail());
+			appUser.setPassword(String.valueOf(new Random().nextInt(Integer.MAX_VALUE)));
+			Set<Role> authorities = new HashSet<>();
+			authorities.add(new Role().setName(RoleType.ROLE_GOOGLE_USER));
+			authorities.add(new Role().setName(RoleType.ROLE_SOCIAL_USER));
+			appUser.setRole(authorities);
+			appUser =  appUserService.verifyAndsave(appUser);
+			userId =  appUser.getUserId();
+			
+			
 		}else{
-			System.err.println("SIGNUP Api object is neither facebook nor twitter nor linkedin.");
+			clw.error("SIGNUP Api object is not of mentioned types .",(apiObject.getClass().getName()));
 		}
 		
 		return userId;

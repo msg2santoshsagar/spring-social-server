@@ -19,12 +19,14 @@ public class SocialConfiguration{
 
 	@Autowired
 	private SocialConnectionSignUp socialConnectionSignUp;
-	
+
 	@Autowired
 	private SocialSignInAdapter socialSignInAdapter;
-	
+
 	@Autowired
 	private ApplicationProperties applicationProperties;
+
+
 
 	@Bean
 	public ProviderSignInController providerSignInController() {
@@ -35,12 +37,11 @@ public class SocialConfiguration{
 				connectionFactoryLocator, 
 				usersConnectionRepository, 
 				socialSignInAdapter);
-		
+
 		providerSignInController.setSignInUrl(applicationProperties.getWebsiteUrl());
-		
+
 		return providerSignInController;
-		
+
 	}
 
-	
 }
