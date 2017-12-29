@@ -4,6 +4,8 @@ import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.social.connect.Connection;
 import org.springframework.social.connect.ConnectionSignUp;
@@ -21,13 +23,12 @@ import com.sagar.springsocialserver.domain.FacebookUser;
 import com.sagar.springsocialserver.domain.Role;
 import com.sagar.springsocialserver.domain.RoleType;
 import com.sagar.springsocialserver.service.AppUserService;
-import com.sagar.springsocialserver.util.CustomLogWriter;
 import com.sagar.springsocialserver.util.GeneralUtil;
 
 @Component
 public class SocialConnectionSignUp implements ConnectionSignUp {
 
-	private static final CustomLogWriter clw = CustomLogWriter.getLogger(SocialConnectionSignUp.class);
+	private static final Logger logger = LoggerFactory.getLogger(SocialConnectionSignUp.class);
 	
 	@Autowired
 	private AppUserService appUserService;
@@ -35,7 +36,7 @@ public class SocialConnectionSignUp implements ConnectionSignUp {
 	@Override
 	public String execute(Connection<?> connection) {
 		
-		clw.debug("=====================================================================SOCIAL SIGN UP");
+		logger.debug("=====================================================================SOCIAL SIGN UP");
 		
 		Object apiObject =  connection.getApi();
 		
@@ -70,8 +71,7 @@ public class SocialConnectionSignUp implements ConnectionSignUp {
 			String [] fields = { "id", "email",  "first_name", "last_name" };
 			FacebookUser  facebookUser = facebook.fetchObject("me", FacebookUser.class, fields);
 			
-			clw.debug("Facebook Profile Data :: ",GeneralUtil.convertToJsonString(facebookUser));
-			
+			logger.debug("Facebook Profile Data :: {} ",GeneralUtil.convertToJsonString(facebookUser));
 			
 			String name = getFullName(facebookUser.getFirstName(), facebookUser.getLastName());
 			
@@ -90,7 +90,7 @@ public class SocialConnectionSignUp implements ConnectionSignUp {
 			
 			TwitterProfile twitterProfile = twitter.userOperations().getUserProfile();
 			
-			clw.debug("Twitter Profile Data :: ",GeneralUtil.convertToJsonString(twitterProfile));
+			logger.debug("Twitter Profile Data :: {} ",GeneralUtil.convertToJsonString(twitterProfile));
 			 
 			AppUser appUser = new AppUser();
 			appUser.setUserId(String.valueOf(twitterProfile.getId()) );
@@ -107,7 +107,7 @@ public class SocialConnectionSignUp implements ConnectionSignUp {
 			
 			LinkedInProfile linkedinProfile = linkedin.profileOperations().getUserProfile();
 			
-			clw.debug("Linkedin Profile Data :: ",GeneralUtil.convertToJsonString(linkedinProfile));
+			logger.debug("Linkedin Profile Data :: {} ",GeneralUtil.convertToJsonString(linkedinProfile));
 			
 			AppUser appUser = new AppUser();
 			appUser.setUserId(String.valueOf(linkedinProfile.getId()) );
@@ -124,7 +124,7 @@ public class SocialConnectionSignUp implements ConnectionSignUp {
 		}else if( isGoogle ){
 			UserInfo userInfo =google.oauth2Operations().getUserinfo();
 			
-			clw.debug("Google Profile Data :: ",GeneralUtil.convertToJsonString(userInfo));
+			logger.debug("Google Profile Data :: {} ",GeneralUtil.convertToJsonString(userInfo));
 			
 			AppUser appUser = new AppUser();
 			appUser.setUserId(userInfo.getId());
@@ -140,7 +140,7 @@ public class SocialConnectionSignUp implements ConnectionSignUp {
 			
 			
 		}else{
-			clw.error("SIGNUP Api object is not of mentioned types .",(apiObject.getClass().getName()));
+			logger.error("SIGNUP Api object is not of mentioned types . {} ",(apiObject.getClass().getName()));
 		}
 		
 		return userId;

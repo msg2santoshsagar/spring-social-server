@@ -2,6 +2,8 @@ package com.sagar.springsocialserver.service;
 
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,12 +14,14 @@ import com.sagar.springsocialserver.repository.AppUserRepository;
 @Service
 public class AppUserService {
 	
+	private static final Logger logger = LoggerFactory.getLogger(AppUserService.class);
+	
 	@Autowired
 	private AppUserRepository appUserRepository;
 	
 	@Transactional(readOnly=true)
 	public Optional<AppUser> findOneByUserId(String userId){
-		System.out.println(" FIND ONE BY USER ID ::: "+userId);
+		logger.debug(" FIND ONE BY USER ID : {} ",userId);
 		return appUserRepository.findOneByUserId(userId);
 	}
 

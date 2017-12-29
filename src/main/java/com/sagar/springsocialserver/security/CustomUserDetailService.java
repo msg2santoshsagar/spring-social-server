@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -25,17 +27,20 @@ import com.sagar.springsocialserver.service.AppUserService;
  */
 @Component
 public class CustomUserDetailService implements UserDetailsService {
+	
+	private static final Logger logger = LoggerFactory.getLogger(CustomUserDetailService.class);
+	
 
 	@Autowired
 	private AppUserService appUserService;
 
-	Short counter = 0;
+	Short counter = 1;
 
 	@Transactional(readOnly = true)
 	@Override
 	public UserDetails loadUserByUsername(String userId) {
 
-		System.out.println("\n\n Request to loadUserByUsername  " + (counter++) + " - " + userId + "\n\n");
+		logger.debug("Request to loadUserByUsername   {} , {}",counter, userId);
 
 		if (counter == Short.MAX_VALUE) {
 			counter = 0;
@@ -48,17 +53,17 @@ public class CustomUserDetailService implements UserDetailsService {
 			// If User is available
 			AppUser appUser = userOptional.get();
 			
-			System.out.println("APP USER GET ROLE ::: ========= "+appUser.getRole());
+			logger.debug("APP USER GET ROLE ::: =========  {} ",appUser.getRole());
 
 			List<GrantedAuthority> grantedAuthorities = appUser.getRole().stream()
 					.map(role -> new SimpleGrantedAuthority(role.getName().toString())).collect(Collectors.toList());
 
 			User  user =  new User(lowercaseUserId, appUser.getPassword(), grantedAuthorities);
-			System.out.println("\n\nLogin Successfull  :: "+user+"\n\n");
+			logger.debug("Login Successfull  :: {} ",user);
 			return user;
 
 		} else {
-			System.out.println("Login failed for user :: " + lowercaseUserId);
+			logger.info("Login failed for user :: {} " ,lowercaseUserId);
 			throw new UsernameNotFoundException("User " + lowercaseUserId + " was not found in database.");
 		}
 

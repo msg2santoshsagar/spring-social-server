@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
@@ -24,13 +26,12 @@ import org.springframework.web.context.request.NativeWebRequest;
 import com.sagar.springsocialserver.domain.AppUser;
 import com.sagar.springsocialserver.domain.FacebookUser;
 import com.sagar.springsocialserver.service.AppUserService;
-import com.sagar.springsocialserver.util.CustomLogWriter;
 import com.sagar.springsocialserver.util.GeneralUtil;
 
 @Component
 public class SocialSignInAdapter implements SignInAdapter {
 
-	private static final CustomLogWriter clw = CustomLogWriter.getLogger(SocialSignInAdapter.class);
+	private static final Logger logger = LoggerFactory.getLogger(SocialSignInAdapter.class);
 
 
 	@Autowired
@@ -39,7 +40,7 @@ public class SocialSignInAdapter implements SignInAdapter {
 	@Override
 	public String signIn(String localUserId, Connection<?> connection, NativeWebRequest nativeWebRequest) {
 		
-		clw.debug("=====================================================================SOCIAL SIGN UP");
+		logger.debug("=====================================================================SOCIAL SIGN UP");
 
 		Object apiObject =  connection.getApi();
 
@@ -74,14 +75,14 @@ public class SocialSignInAdapter implements SignInAdapter {
 			String [] fields = { "id"};
 			FacebookUser  facebookUser = facebook.fetchObject("me", FacebookUser.class, fields);
 
-			clw.debug("Facebook Profile Data :: ",GeneralUtil.convertToJsonString(facebookUser));
+			logger.debug("Facebook Profile Data :: {} ",GeneralUtil.convertToJsonString(facebookUser));
 
 			userId = facebookUser.getId();
 
 		}else if( isTwitter ){
 			TwitterProfile twitterProfile = twitter.userOperations().getUserProfile();
 
-			clw.debug("Twitter Profile Data :: ",GeneralUtil.convertToJsonString(twitterProfile));
+			logger.debug("Twitter Profile Data :: {} ",GeneralUtil.convertToJsonString(twitterProfile));
 
 			userId  = String.valueOf(twitterProfile.getId());
 
@@ -89,7 +90,7 @@ public class SocialSignInAdapter implements SignInAdapter {
 
 			LinkedInProfile linkedinProfile = linkedin.profileOperations().getUserProfile();
 
-			clw.debug("Linkedin Profile Data :: ",GeneralUtil.convertToJsonString(linkedinProfile));
+			logger.debug("Linkedin Profile Data :: {} ",GeneralUtil.convertToJsonString(linkedinProfile));
 
 			userId  = linkedinProfile.getId();
 
@@ -97,12 +98,12 @@ public class SocialSignInAdapter implements SignInAdapter {
 
 			UserInfo userInfo = google.oauth2Operations().getUserinfo();
 
-			clw.debug("Google Profile Data :: ",GeneralUtil.convertToJsonString(userInfo));
+			logger.debug("Google Profile Data :: {} ",GeneralUtil.convertToJsonString(userInfo));
 
 			userId = userInfo.getId();
 
 		}else{
-			clw.error("SIGNIN Api object is not of mentioned types .",(apiObject.getClass().getName()));
+			logger.error("SIGNIN Api object is not of mentioned types . {} ",(apiObject.getClass().getName()));
 		}
 
 		if(userId == null){
@@ -112,7 +113,7 @@ public class SocialSignInAdapter implements SignInAdapter {
 
 		Optional<AppUser> optionalUser = appUserService.findOneByUserId(userId);
 
-		clw.debug("OPTIONAL USER DATA FETCHED ---------------- ");
+		logger.debug("OPTIONAL USER DATA FETCHED ---------------- ");
 
 		if( optionalUser.isPresent()){
 			AppUser appUser = optionalUser.get();
@@ -127,7 +128,7 @@ public class SocialSignInAdapter implements SignInAdapter {
 
 
 		}else{
-			clw.debug("OPTIONAL USER DATA FETCHED, But No entry available corresponding to user in db ",userId);
+			logger.debug("OPTIONAL USER DATA FETCHED, But No entry available corresponding to user in db {} ",userId);
 		}
 
 

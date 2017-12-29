@@ -2,8 +2,7 @@ package com.sagar.springsocialserver.controller;
 
 
 import java.time.LocalDateTime;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.env.Environment;
+
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -23,9 +22,6 @@ import com.sagar.springsocialserver.util.DateUtil;
 @RestController
 @RequestMapping(value="/api")
 public class ApplicationInformationController {
-	
-	@Autowired
-	Environment environment;
 	
 	private final static LocalDateTime startTimePoint = LocalDateTime.now();
 

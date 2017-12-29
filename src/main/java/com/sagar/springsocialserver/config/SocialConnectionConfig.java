@@ -25,8 +25,6 @@ public class SocialConnectionConfig extends SocialConfigurerAdapter{
 		String googleAppId     = env.getProperty("spring.social.google.appId");
 		String googleAppSecret = env.getProperty("spring.social.google.appSecret");
 		
-		System.out.println("GOOGLE APP ID "+googleAppId+" GOOGLE API SECRET KEY "+googleAppSecret);
-		
 		connectionFactoryConfigurer.addConnectionFactory(new GoogleConnectionFactory(googleAppId,googleAppSecret));
 	}
 

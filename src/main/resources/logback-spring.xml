@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration scan="true" scanPeriod="30 seconds">
+
+
+	<property name="LOG_FILE" value="spring-social.log" />
+	<include resource="org/springframework/boot/logging/logback/defaults.xml" />
+	<include resource="org/springframework/boot/logging/logback/file-appender.xml" />
+	<include
+		resource="org/springframework/boot/logging/logback/console-appender.xml" />
+
+	<logger name="com.sagar.springsocialserver" level="DEBUG" />
+	<logger name="org.springframework" level="WARN" />
+	<logger name="org.springframework.web" level="WARN" />
+	<logger name="org.springframework.security" level="WARN" />
+	<logger name="org.hibernate.validator" level="WARN" />
+	<logger name="org.hibernate" level="WARN" />
+	<logger name="org.hibernate.ejb.HibernatePersistence" level="OFF" />
+
+	<root level="DEBUG">
+		<appender-ref ref="FILE" />
+		<appender-ref ref="CONSOLE" />
+	</root>
+
+</configuration>
