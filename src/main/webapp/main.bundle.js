@@ -430,7 +430,7 @@ var PageNotFoundComponent = (function () {
 
 "use strict";
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return environment; });
-var restEndPoint = "http://spring-socialapp.vrqb9j7jng.us-east-1.elasticbeanstalk.com";
+var restEndPoint = "";
 var environment = {
     production: true,
     apiLogin: restEndPoint + "/api/login",

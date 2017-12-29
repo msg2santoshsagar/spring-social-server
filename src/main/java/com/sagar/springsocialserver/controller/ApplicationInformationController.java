@@ -1,17 +1,17 @@
 package com.sagar.springsocialserver.controller;
 
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import javax.annotation.PostConstruct;
-
+import java.time.LocalDateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.sagar.springsocialserver.domain.constants.AppConstant;
+import com.sagar.springsocialserver.domain.model.ApplicationInfo;
+import com.sagar.springsocialserver.util.DateUtil;
 
 /**
  * A rest controller for providing application information detail.
@@ -27,20 +27,15 @@ public class ApplicationInformationController {
 	@Autowired
 	Environment environment;
 	
-	private final static Date startDate = new Date();
-	
-	private Map<String, String> applicationInformationMap;
+	private final static LocalDateTime startTimePoint = LocalDateTime.now();
 
 	/**
 	 * It will help to initialize the value of applicationInformationMap
-	 * It will automatically get invoked, when the class initialized.
 	 */
-	@PostConstruct
-	private void init(){
-		applicationInformationMap = new HashMap<>();
-		applicationInformationMap.put("name", "Spring social service");
-		applicationInformationMap.put("version", "0.0.1");
-		applicationInformationMap.put("UP_TIME", startDate.toString());
+	private ApplicationInfo getApplicationInfo(){
+		return new ApplicationInfo().setName("Spring social service")
+				.setVersion(AppConstant.APP_VERSION)
+				.setUpTime(DateUtil.convertDateInIst(startTimePoint));
 	}
 
 	/**
@@ -50,8 +45,8 @@ public class ApplicationInformationController {
 	 * @return a map which will have application detail
 	 */
 	@RequestMapping(value="/ping",method={RequestMethod.GET,RequestMethod.POST},produces=MediaType.APPLICATION_JSON_UTF8_VALUE)
-	public Map<String, String> ping(){
-		return applicationInformationMap;
+	public ApplicationInfo ping(){
+		return getApplicationInfo();
 	}
 	
 
