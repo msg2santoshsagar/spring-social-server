@@ -37,17 +37,17 @@ public class AppUser  implements Serializable {
 	private String userId;
 
 	@JsonIgnore
-	@Size(min = 1, max = 45)
-	@Column(length = 45)
+	@Size(min = 1, max = 255)
+	@Column(length = 255)
 	private String password;
 
-	@Size(min = 1, max = 45)
-	@Column(length = 45)
+	@Size(min = 0, max = 255)
+	@Column(length = 255)
 	private String name;
 
 
-	@Size(min = 1, max = 45)
-	@Column(length = 45)
+	@Size(min = 0, max = 255)
+	@Column(length = 255)
 	private String email;
 
 	@ManyToMany

@@ -51,9 +51,6 @@ public class ApplicationInformationController {
 	 */
 	@RequestMapping(value="/ping",method={RequestMethod.GET,RequestMethod.POST},produces=MediaType.APPLICATION_JSON_UTF8_VALUE)
 	public Map<String, String> ping(){
-		
-		System.out.println(" &&&&&&&&&&&&&&&& "+environment.getProperty("project.name1"));
-		
 		return applicationInformationMap;
 	}
 	

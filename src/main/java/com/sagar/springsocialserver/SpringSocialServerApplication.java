@@ -13,7 +13,8 @@ public class SpringSocialServerApplication extends SpringBootServletInitializer 
 		return application.sources(SpringSocialServerApplication.class);
 	}
 
-	public static void main(String[] args) throws Exception {
+	public static void main(String[] args){
 		SpringApplication.run(SpringSocialServerApplication.class, args);
 	}
+		
 }
